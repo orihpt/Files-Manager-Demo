@@ -15,6 +15,8 @@
 		5989ED752591FD03002034E0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5989ED732591FD03002034E0 /* LaunchScreen.storyboard */; };
 		5989ED802591FD03002034E0 /* FilesManagerDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5989ED7F2591FD03002034E0 /* FilesManagerDemoTests.swift */; };
 		5989ED8B2591FD03002034E0 /* FilesManagerDemoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5989ED8A2591FD03002034E0 /* FilesManagerDemoUITests.swift */; };
+		5989ED9C2591FD9C002034E0 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5989ED9B2591FD9C002034E0 /* TableViewController.swift */; };
+		5989EDA12591FEBB002034E0 /* DefaultsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5989EDA02591FEBB002034E0 /* DefaultsHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +51,8 @@
 		5989ED862591FD03002034E0 /* FilesManagerDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FilesManagerDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5989ED8A2591FD03002034E0 /* FilesManagerDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesManagerDemoUITests.swift; sourceTree = "<group>"; };
 		5989ED8C2591FD03002034E0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5989ED9B2591FD9C002034E0 /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
+		5989EDA02591FEBB002034E0 /* DefaultsHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultsHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +110,8 @@
 				5989ED712591FD03002034E0 /* Assets.xcassets */,
 				5989ED732591FD03002034E0 /* LaunchScreen.storyboard */,
 				5989ED762591FD03002034E0 /* Info.plist */,
+				5989ED9B2591FD9C002034E0 /* TableViewController.swift */,
+				5989EDA02591FEBB002034E0 /* DefaultsHelper.swift */,
 			);
 			path = FilesManagerDemo;
 			sourceTree = "<group>";
@@ -258,9 +264,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5989EDA12591FEBB002034E0 /* DefaultsHelper.swift in Sources */,
 				5989ED6D2591FCE0002034E0 /* ViewController.swift in Sources */,
 				5989ED692591FCE0002034E0 /* AppDelegate.swift in Sources */,
 				5989ED6B2591FCE0002034E0 /* SceneDelegate.swift in Sources */,
+				5989ED9C2591FD9C002034E0 /* TableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
