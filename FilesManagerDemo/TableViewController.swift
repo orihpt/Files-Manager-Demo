@@ -82,6 +82,12 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
 
         cell.textLabel?.text = urls[indexPath.row].lastPathComponent
+        
+        if FileManager.default.fileExists(atPath: urls[indexPath.row].path) {
+            cell.accessoryType = .disclosureIndicator
+        } else {
+            cell.accessoryType = .none
+        }
 
         return cell
     }
