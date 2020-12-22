@@ -9,28 +9,38 @@ import UIKit
 import MobileCoreServices
 import UniformTypeIdentifiers
 
+typealias UrlLink = String
+
+extension UrlLink {
+    var url: URL {
+        var url = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        url.appendPathComponent(self)
+        return url
+    }
+}
+
 struct UserData: Encodable, Decodable {
-    var urls: [URL] = [] {
+    var names: [UrlLink] = [] {
         didSet {
-            try! UserDefaults.standard.setToObject(urls, forKey: "urls")
+            try! UserDefaults.standard.setToObject(names, forKey: "names")
         }
     }
 }
 
 class TableViewController: UITableViewController, UIDocumentPickerDelegate {
     
-    var urls: [URL] = [] {
+    var names: [UrlLink] = [] {
         willSet {
-            let data = UserData(urls: newValue)
-            try! UserDefaults.standard.setToObject(data, forKey: "userdata")
+            let data = UserData(names: newValue)
+            try! UserDefaults.standard.setToObject(data, forKey: "names")
         }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        if let urls = try? UserDefaults.standard.getToObject(forKey: "userdata", castTo: UserData.self).urls {
-            self.urls = urls
+        if let names = try? UserDefaults.standard.getToObject(forKey: "names", castTo: UserData.self).names {
+            self.names = names
         }
 
         // Uncomment the following line to preserve selection between presentations
@@ -38,6 +48,12 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
          self.navigationItem.rightBarButtonItem = self.editButtonItem
+    }
+    
+    func urlForFilename(_ filename: String) -> URL {
+        var url = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        url.appendPathComponent(filename)
+        return url
     }
 
     @IBAction func newButtonPressed(_ sender: Any) {
@@ -57,9 +73,9 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let removedURL = self.urls.remove(at: indexPath.row)
+            let removedName = self.names.remove(at: indexPath.row)
             do {
-                try FileManager.default.removeItem(atPath: removedURL.path)
+                try FileManager.default.removeItem(atPath: names[indexPath.row].url.path)
             } catch let err {
                 print("Error while trying to remove the file \(err)")
             }
@@ -75,15 +91,15 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return urls.count
+        return names.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
 
-        cell.textLabel?.text = urls[indexPath.row].lastPathComponent
+        cell.textLabel?.text = names[indexPath.row]
         
-        if FileManager.default.fileExists(atPath: urls[indexPath.row].path) {
+        if FileManager.default.fileExists(atPath: names[indexPath.row].url.path) {
             cell.accessoryType = .disclosureIndicator
         } else {
             cell.accessoryType = .none
@@ -110,12 +126,12 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        share(url: self.urls[indexPath.row])
+        share(url: self.names[indexPath.row].url)
     }
     
     func storeAndShare(withURL url: URL) {
 
-        let directoryURL = try! FileManager.default.url(for: .applicationDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        let directoryURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         var newURL = directoryURL.appendingPathComponent(url.lastPathComponent)
         
         var index = 1
@@ -132,7 +148,7 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
         do {
             try FileManager.default.copyItem(at: url, to: newURL)
             DispatchQueue.main.async {
-                self.urls.append(newURL)
+                self.names.append(newURL.lastPathComponent)
                 self.share(url: newURL)
                 self.tableView.reloadData()
             }
