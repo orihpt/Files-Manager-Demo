@@ -147,10 +147,9 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
         
         do {
             try FileManager.default.copyItem(at: url, to: newURL)
-            DispatchQueue.main.async {
-                self.names.append(newURL.lastPathComponent)
-                self.share(url: newURL)
-                self.tableView.reloadData()
+            DispatchQueue.main.async { [self] in
+                names.append(newURL.lastPathComponent)
+                tableView.insertRows(at: [IndexPath(row: names.count - 1, section: 0)], with: .automatic)
             }
         } catch {
             print("ERROR: \(error).")
