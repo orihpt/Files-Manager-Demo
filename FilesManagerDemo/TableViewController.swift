@@ -57,7 +57,13 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            self.urls.remove(at: indexPath.row)
+            let removedURL = self.urls.remove(at: indexPath.row)
+            do {
+                try FileManager.default.removeItem(atPath: removedURL.path)
+            } catch let err {
+                print("Error while trying to remove the file \(err)")
+            }
+            
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
     }
@@ -75,7 +81,7 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
 
-        cell.textLabel?.text = urls[indexPath.row].localizedName
+        cell.textLabel?.text = urls[indexPath.row].lastPathComponent
 
         return cell
     }
@@ -103,17 +109,17 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
     
     func storeAndShare(withURL url: URL) {
 
-        let directoryURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+        let directoryURL = try! FileManager.default.url(for: .applicationDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         var newURL = directoryURL.appendingPathComponent(url.lastPathComponent)
         
         var index = 1
         let originalNewURL = newURL
         while FileManager.default.fileExists(atPath: newURL.path) {
             newURL = originalNewURL
-            var comp = newURL.lastPathComponent
+            let comp: NSString = newURL.lastPathComponent as NSString
             newURL.deleteLastPathComponent()
-            comp = "\(comp) (\(index))"
-            newURL.appendPathComponent(comp)
+            let newName: String = "\(comp.deletingPathExtension) \(index).\(comp.pathExtension)"
+            newURL.appendPathComponent(newName)
             index = index + 1
         }
         
