@@ -75,7 +75,7 @@ class TableViewController: UITableViewController, UIDocumentPickerDelegate {
         if editingStyle == .delete {
             let removedName = self.names.remove(at: indexPath.row)
             do {
-                try FileManager.default.removeItem(atPath: names[indexPath.row].url.path)
+                try FileManager.default.removeItem(atPath: removedName.url.path)
             } catch let err {
                 print("Error while trying to remove the file \(err)")
             }
