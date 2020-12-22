@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import MobileCoreServices
+import UniformTypeIdentifiers
 
 struct UserData: Encodable, Decodable {
     var urls: [URL] = [] {
@@ -15,7 +17,7 @@ struct UserData: Encodable, Decodable {
     }
 }
 
-class TableViewController: UITableViewController {
+class TableViewController: UITableViewController, UIDocumentPickerDelegate {
     
     var urls: [URL] = [] {
         willSet {
@@ -39,7 +41,16 @@ class TableViewController: UITableViewController {
     }
 
     @IBAction func newButtonPressed(_ sender: Any) {
-        
+        let types = UTType(tag: "pdf", tagClass: .filenameExtension, conformingTo: nil)!
+        let controller = UIDocumentPickerViewController(forOpeningContentTypes: [types])
+        controller.delegate = self
+        self.present(controller, animated: true, completion: nil)
+    }
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        for url in urls {
+            self.storeAndShare(withURL: url)
+        }
     }
     
     // MARK: - Table view data source
@@ -57,12 +68,20 @@ class TableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
 
-        // Configure the cell...
+        cell.textLabel?.text = urls[indexPath.row].localizedName
 
         return cell
     }
     
-    let documentInteractionController = UIDocumentInteractionController()
+    lazy var documentInteractionController: UIDocumentInteractionController = {
+        let vc = UIDocumentInteractionController()
+        vc.delegate = self
+        return vc
+    }()
+    
+    func getSelf() -> TableViewController {
+        return self
+    }
     
     func share(url: URL) {
         documentInteractionController.url = url
@@ -74,51 +93,34 @@ class TableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         share(url: self.urls[indexPath.row])
     }
+    
+    func storeAndShare(withURL url: URL) {
 
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+        let directoryURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+        var newURL = directoryURL.appendingPathComponent(url.lastPathComponent)
+        
+        var index = 1
+        let originalNewURL = newURL
+        while FileManager.default.fileExists(atPath: newURL.path) {
+            newURL = originalNewURL
+            var comp = newURL.lastPathComponent
+            newURL.deleteLastPathComponent()
+            comp = "\(comp) (\(index))"
+            newURL.appendPathComponent(comp)
+            index = index + 1
+        }
+        
+        do {
+            try FileManager.default.copyItem(at: url, to: newURL)
+            DispatchQueue.main.async {
+                self.urls.append(newURL)
+                self.share(url: newURL)
+                self.tableView.reloadData()
+            }
+        } catch {
+            print("ERROR: \(error).")
+        }
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
 
